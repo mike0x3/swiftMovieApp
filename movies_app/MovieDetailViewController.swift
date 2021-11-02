@@ -35,6 +35,8 @@ class MovieDetailViewController: UIViewController {
         for view in scrollView.subviews {
             contentRect = contentRect.union(view.frame)
         }
+        //Test for git to the changes
+        
         
         var finalSizes = contentRect.size
         finalSizes.height = finalSizes.height - UIApplication.shared.statusBarFrame.size.height +
