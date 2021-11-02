@@ -11,9 +11,16 @@ class MovieDetailViewController: UIViewController {
 
     let scrollView: UIScrollView! = UIScrollView()
     let contentView: UIView! = UIView()
-    let movieTitleLabel: UILabel! = UILabel()
+    
+    let infoBoxView: UIView! = UIView()
+    
+    let movieTitleView: UIView! = UIView()
+    
     let movieOriginalTitleLabel: UILabel! = UILabel()
+    
+    let movieImageParentView: UIView! = UIView()
     let movieImageView: UIImageView! = UIImageView()
+    
     let movieOverviewTextView: UITextView! = UITextView()
     let moviePopularityLabel: UILabel! = UILabel()
     let movieOriginalLanguageLabel: UILabel! = UILabel()
@@ -30,11 +37,9 @@ class MovieDetailViewController: UIViewController {
         }
         
         var finalSizes = contentRect.size
-        finalSizes.width = finalSizes.width - UIApplication.shared.statusBarFrame.size.height +
+        finalSizes.height = finalSizes.height - UIApplication.shared.statusBarFrame.size.height +
             (self.navigationController?.navigationBar.frame.height ?? 0.0)
-        
-        
-        scrollView.contentSize = finalSizes
+        scrollView.showsVerticalScrollIndicator = false
     }
     
     override func viewDidLoad() {
@@ -45,11 +50,21 @@ class MovieDetailViewController: UIViewController {
         title = movie?.title
         view.backgroundColor = .white
         
-        movieTitleLabel.text = movie?.title
+        infoBoxView.layer.cornerRadius = 15
+        infoBoxView.backgroundColor = .white
+        infoBoxView.layer.shadowColor = UIColor.black.cgColor
+        infoBoxView.layer.shadowOffset = CGSize(width: 2.0, height: 2.0)
+        infoBoxView.layer.shadowOpacity = 0.5
+        infoBoxView.layer.shadowRadius = 8
+        
+        movieTitleView.layer.cornerRadius = 15
+        movieTitleView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        movieTitleView.backgroundColor = UIColor.init(cgColor: CGColor.init(red: CGFloat(103.0/255.0), green: CGFloat(183.0/255.0), blue: CGFloat(209.0/255.0), alpha: CGFloat(0.9)))
         
         movieOriginalTitleLabel.text = movie?.original_title
         movieOriginalTitleLabel.font = UIFont.preferredFont(forTextStyle: .title1)
         movieOriginalTitleLabel.numberOfLines = 0
+        movieOriginalTitleLabel.textColor = .white
         
         if movie!.original_language == "en" {
             movieOriginalTitleLabel.text = movie?.original_title
@@ -64,7 +79,17 @@ class MovieDetailViewController: UIViewController {
         }
         
         let data = try? Data(contentsOf: url)
+        
         movieImageView.image = UIImage(data: data!)
+        
+        movieImageParentView.layer.shadowColor = UIColor.black.cgColor
+        movieImageParentView.layer.shadowOffset = CGSize(width: 2.0, height: 2.0)
+        movieImageParentView.layer.shadowOpacity = 0.5
+        movieImageParentView.layer.shadowRadius = 8
+        movieImageParentView.layer.cornerRadius = 15
+        
+        movieImageView.layer.cornerRadius = 15
+        movieImageView.clipsToBounds = true
         
         movieOverviewTextView.text = movie!.overview
         movieOverviewTextView.font = UIFont.systemFont(ofSize: 16)
@@ -73,9 +98,9 @@ class MovieDetailViewController: UIViewController {
         
         moviePopularityLabel.text = "Popularity: \(movie!.popularity)"
         
-        movieOriginalLanguageLabel.text = movie!.original_language.uppercased()
+        movieOriginalLanguageLabel.text = "🌐\(movie!.original_language.uppercased())"
         
-        movieReleaseDateLabel.text = movie!.release_date.replacingOccurrences(of: "-", with: "/")
+        movieReleaseDateLabel.text = "🗓\(movie!.release_date.replacingOccurrences(of: "-", with: "/"))"
         
         tamicFalse()
         
@@ -87,9 +112,16 @@ class MovieDetailViewController: UIViewController {
     func tamicFalse() {
         contentView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.translatesAutoresizingMaskIntoConstraints = false
-        movieTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        infoBoxView.translatesAutoresizingMaskIntoConstraints = false
+        
+        movieTitleView.translatesAutoresizingMaskIntoConstraints = false
+        
         movieOriginalTitleLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        movieImageParentView.translatesAutoresizingMaskIntoConstraints = false
         movieImageView.translatesAutoresizingMaskIntoConstraints = false
+        
         movieOverviewTextView.translatesAutoresizingMaskIntoConstraints = false
         moviePopularityLabel.translatesAutoresizingMaskIntoConstraints = false
         movieOriginalLanguageLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -99,21 +131,24 @@ class MovieDetailViewController: UIViewController {
     func addSubViews() {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
-        contentView.addSubview(movieOriginalTitleLabel)
-        contentView.addSubview(movieImageView)
-        contentView.addSubview(movieOverviewTextView)
-        contentView.addSubview(moviePopularityLabel)
-        contentView.addSubview(movieOriginalLanguageLabel)
-        contentView.addSubview(movieReleaseDateLabel)
+        
+        contentView.addSubview(movieImageParentView)
+        movieImageParentView.addSubview(movieImageView)
+        
+        contentView.addSubview(infoBoxView)
+    
+        infoBoxView.addSubview(movieTitleView)
+        
+        movieTitleView.addSubview(movieOriginalTitleLabel)
+        
+        infoBoxView.addSubview(movieOverviewTextView)
+        infoBoxView.addSubview(moviePopularityLabel)
+        infoBoxView.addSubview(movieOriginalLanguageLabel)
+        infoBoxView.addSubview(movieReleaseDateLabel)
     }
     
     func addConstraints() {
         NSLayoutConstraint.activate([
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            
             scrollView.widthAnchor.constraint(equalTo: view.widthAnchor),
             scrollView.heightAnchor.constraint(equalTo: view.heightAnchor),
 
@@ -122,27 +157,48 @@ class MovieDetailViewController: UIViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            movieImageView.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            movieImageView.leftAnchor.constraint(equalTo: contentView.leftAnchor),
-            movieImageView.rightAnchor.constraint(equalTo: contentView.rightAnchor),
-            movieImageView.heightAnchor.constraint(equalToConstant: 270),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            contentView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             
-            movieOriginalTitleLabel.topAnchor.constraint(equalTo: movieImageView.bottomAnchor, constant: 10),
-            movieOriginalTitleLabel.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 13),
-            movieOriginalTitleLabel.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -10),
+            movieImageParentView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 15),
+            movieImageParentView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 15),
+            movieImageParentView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -15),
+            movieImageParentView.heightAnchor.constraint(equalToConstant: UIScreen.main.bounds.size.height / 3.7),
             
-            movieOverviewTextView.topAnchor.constraint(equalTo: movieOriginalTitleLabel.bottomAnchor),
-            movieOverviewTextView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 10),
-            movieOverviewTextView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -10),
+            movieImageView.topAnchor.constraint(equalTo: movieImageParentView.topAnchor),
+            movieImageView.leftAnchor.constraint(equalTo: movieImageParentView.leftAnchor),
+            movieImageView.rightAnchor.constraint(equalTo: movieImageParentView.rightAnchor),
+            movieImageView.heightAnchor.constraint(equalTo: movieImageParentView.heightAnchor),
+            
+            infoBoxView.topAnchor.constraint(equalTo: movieImageParentView.bottomAnchor, constant: 15),
+            infoBoxView.leftAnchor.constraint(equalTo: contentView.leftAnchor, constant: 15),
+            infoBoxView.rightAnchor.constraint(equalTo: contentView.rightAnchor, constant: -15),
+            infoBoxView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -10),
+            
+            movieTitleView.topAnchor.constraint(equalTo: infoBoxView.topAnchor),
+            movieTitleView.leftAnchor.constraint(equalTo: infoBoxView.leftAnchor),
+            movieTitleView.rightAnchor.constraint(equalTo: infoBoxView.rightAnchor),
+            movieTitleView.heightAnchor.constraint(equalTo: infoBoxView.heightAnchor, multiplier: 0.12),
+            
+            movieOriginalTitleLabel.centerXAnchor.constraint(equalTo: movieTitleView.centerXAnchor),
+            movieOriginalTitleLabel.centerYAnchor.constraint(equalTo: movieTitleView.centerYAnchor),
+            movieOriginalTitleLabel.leftAnchor.constraint(equalTo: movieTitleView.leftAnchor, constant: 10),
+            movieOriginalTitleLabel.rightAnchor.constraint(equalTo: movieTitleView.rightAnchor, constant: -10),
+            
+            movieOverviewTextView.topAnchor.constraint(equalTo: movieTitleView.bottomAnchor),
+            movieOverviewTextView.leftAnchor.constraint(equalTo: infoBoxView.leftAnchor, constant: 10),
+            movieOverviewTextView.rightAnchor.constraint(equalTo: infoBoxView.rightAnchor, constant: -10),
             
             moviePopularityLabel.topAnchor.constraint(equalTo: movieOverviewTextView.bottomAnchor, constant: -4),
-            moviePopularityLabel.leftAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leftAnchor, constant: 7),
+            moviePopularityLabel.leftAnchor.constraint(equalTo: infoBoxView.layoutMarginsGuide.leftAnchor, constant: 7),
             
-            movieOriginalLanguageLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor, constant: -10),
-            movieOriginalLanguageLabel.leftAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leftAnchor),
+            movieOriginalLanguageLabel.bottomAnchor.constraint(equalTo: infoBoxView.layoutMarginsGuide.bottomAnchor, constant: -10),
+            movieOriginalLanguageLabel.leftAnchor.constraint(equalTo: infoBoxView.layoutMarginsGuide.leftAnchor, constant: 1),
             
-            movieReleaseDateLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor, constant: -10),
-            movieReleaseDateLabel.rightAnchor.constraint(equalTo: contentView.layoutMarginsGuide.rightAnchor)
+            movieReleaseDateLabel.bottomAnchor.constraint(equalTo: infoBoxView.layoutMarginsGuide.bottomAnchor, constant: -10),
+            movieReleaseDateLabel.rightAnchor.constraint(equalTo: infoBoxView.layoutMarginsGuide.rightAnchor, constant: -3)
         ])
     }
     

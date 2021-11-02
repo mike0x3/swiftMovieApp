@@ -221,6 +221,7 @@ extension ViewController {
             url = URL(string: "https://www.auro-3d.com/wp-content/uploads/2016/08/no-poster-available.jpg")!
         }
         
+        print(url)
         let imageData = try? Data(contentsOf: url)
         
         
